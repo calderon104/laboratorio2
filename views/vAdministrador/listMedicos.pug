@@ -1,0 +1,17 @@
+extends ../layouts/layout
+
+block content
+  h1.text-center= title
+  main.container
+    div.text-right
+    ul.medicos-list
+      if medicos.length === 0
+        li
+          b.text-center No hay médicos registrados 😃
+      else
+        each medico in medicos
+          li.medico-item
+            a(href=`/admin/medicos/${medico.id}/edit`) #{medico.nombre} #{medico.apellido}
+            p Especialidad: #{medico.especialidad}
+            p DNI: #{medico.dni}
+      a.back-button(href="/admin/") ↩️ Volver

@@ -1,0 +1,302 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+/* Contenedor principal */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Estilos para los botones principales */
+.button-box {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s;
+}
+
+.button-box:hover {
+    background-color: #45a049;
+}
+
+/* Enlaces dentro de los botones */
+.button-box a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+/* Cuadro del administrador */
+.admin-box {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 100px;
+    height: 50px;
+    background-color: #FF5733;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    z-index: 100;
+}
+
+.admin-box:hover {
+    background-color: #E94B2E;
+}
+
+/* Enlace en cuadro de administrador */
+.admin-box a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+/* Estilos generales para el formulario */
+form {
+    width: 100%;
+    max-width: 400px;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="email"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="email"]:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Mensaje de éxito */
+.pacient {
+    margin-top: 15px;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+/* Enlace de retorno */
+a {
+    display: block;
+    margin-top: 20px;
+    text-align: center;
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Botón general */
+.button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.button:hover {
+    background-color: #45a049;
+}
+
+/* Listado de médicos */
+.medicos-list {
+    list-style: none;
+    padding: 0;
+}
+
+.medico-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 10px 0;
+    background-color: #f9f9f9;
+    transition: background-color 0.2s;
+}
+
+.medico-item:hover {
+    background-color: #e8f5e9;
+}
+
+/* Contenedor de formulario */
+.form-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 900px;
+    margin: auto;
+    overflow-y: auto;
+    max-height: 80vh;
+    padding: 20px;
+}
+
+.column {
+    flex: 1;
+    min-width: 300px;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.time-group {
+    display: flex;
+    gap: 10px;
+}
+
+/* Estilos responsivos */
+@media (max-width: 600px) {
+    .container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    form {
+        width: 90%;
+        margin: 10px;
+    }
+}
+/* Diseño vertical exclusivo para modificarMed.pug */
+.form-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch; /* Alinea los elementos al ancho completo */
+    max-width: 400px; /* Define un ancho máximo */
+    margin: auto;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.form-vertical label {
+    font-weight: bold;
+    color: #333;
+}
+
+.form-vertical input[type="text"],
+.form-vertical input[type="email"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-vertical button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-vertical button[type="submit"]:hover {
+    background-color: #45a049;
+}
+/* Estilos para elementos más pequeños en modificarMed.pug */
+.small-button {
+    padding: 6px 12px;
+    font-size: 14px;
+    width: auto;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.small-button:hover {
+    background-color: #45a049;
+}
+
+.small-input {
+    width: 50%; /* Ajusta el ancho según lo que necesites */
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.small-select {
+    width: 50%; /* Ajusta el ancho según lo que necesites */
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+

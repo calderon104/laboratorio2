@@ -1,0 +1,65 @@
+
+
+extends ../layouts/layout
+
+block content
+    h1 Turnos Disponibles
+    
+    form#filtroTurnos
+        div
+            label(for="especialidad") Especialidad:
+            select(name="especialidad" id="especialidad")
+                option(value="") Todas las especialidades
+                each especialidad in especialidades
+                    option(value=especialidad.id)= especialidad.nombre
+        
+        div
+            label(for="medico") Médico:
+            select(name="medico" id="medico")
+                option(value="") Todos los médicos
+                each medico in medicos
+                    option(value=medico.id)= medico.nombre + " " + medico.apellido
+        
+        div
+            label(for="fecha") Fecha:
+            input(type="date" name="fecha" id="fecha")
+        
+        button(type="submit") Buscar Turnos
+
+    div#resultadosTurnos
+        // Aquí se mostrarán los resultados de la búsqueda
+
+    script.
+        document.getElementById('filtroTurnos').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const especialidad = document.getElementById('especialidad').value;
+            const medico = document.getElementById('medico').value;
+            const fecha = document.getElementById('fecha').value;
+
+            fetch(`/secretaria/buscar-turnos?especialidad=${especialidad}&medico=${medico}&fecha=${fecha}`)
+                .then(response => response.json())
+                .then(turnos => {
+                    const resultadosDiv = document.getElementById('resultadosTurnos');
+                    resultadosDiv.innerHTML = '<h2>Turnos Disponibles:</h2>';
+                    if (turnos.length === 0) {
+                        resultadosDiv.innerHTML += '<p>No se encontraron turnos disponibles.</p>';
+                    } else {
+                        let tabla = '<table><thead><tr><th>Médico</th><th>Especialidad</th><th>Fecha</th><th>Hora</th><th>Acción</th></tr></thead><tbody>';
+                        turnos.forEach(turno => {
+                            tabla += `<tr>
+                                <td>${turno.medico}</td>
+                                <td>${turno.especialidad}</td>
+                                <td>${turno.fecha}</td>
+                                <td>${turno.hora}</td>
+                                <td><a href="/secretaria/reservar-turno/${turno.id}" class="button">Reservar</a></td>
+                            </tr>`;
+                        });
+                        tabla += '</tbody></table>';
+                        resultadosDiv.innerHTML += tabla;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('resultadosTurnos').innerHTML = '<p>Error al buscar turnos. Por favor, intente nuevamente.</p>';
+                });
+        });

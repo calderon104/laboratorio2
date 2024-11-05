@@ -1,0 +1,44 @@
+extends ../layouts/layout
+
+block content
+  h1= title
+  main.container
+    // Formulario para actualizar información personal del médico
+    form.form-vertical(action=`/admin/medicos/${medico.id}/edit` method="POST")
+      h2 Información Personal
+      label(for="nombre") Nombre
+      input(type="text", id="nombre", name="nombre", value=medico.nombre, required)
+      
+      label(for="apellido") Apellido
+      input(type="text", id="apellido", name="apellido", value=medico.apellido, required)
+      
+      label(for="telefono") Teléfono
+      input(type="text", id="telefono", name="telefono", value=medico.telefono, required)
+      
+      label(for="email") Email
+      input(type="email", id="email", name="email", value=medico.email, required)
+      
+      button.edit-button(type="submit") Guardar Cambios
+    
+    // Sección para gestionar especialidades
+  h2 Especialidades
+   ul.especialidades-list
+    each especialidad in medico.especialidades
+      li
+        p #{especialidad.nombre}
+        a.delete-specialty-button(href=`/admin/medicos/${medico.id}/remove-specialty/${especialidad.id}`) Eliminar
+
+   form(action=`/admin/medicos/${medico.id}/add-specialty` method="POST")
+    label(for="nuevaEspecialidad") Agregar Especialidad
+     br
+     select.small-select(name="especialidad_id" id="nuevaEspecialidad")
+       each especialidad in especialidadesDisponibles
+         option(value=especialidad.id)= especialidad.nombre
+
+     br
+     label(for="matricula") Matrícula
+     input.small-input(type="text" id="matricula" name="matricula" required)
+
+     br
+     button.small-button.add-specialty-button(type="submit") Agregar Especialidad
+  a.back-button(href="/admin/") ↩️ Volver a la lista de médicos
