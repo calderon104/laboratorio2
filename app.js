@@ -32,8 +32,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(rMain)
 app.use(rPaciente);
 app.use(rSecretaria);
-app.use(rAdmin)
-//app.use(rMain);
+app.use(rAdmin);
 //app.use(isAuthenticated,rSecretaria)
 //app.use(error.e404);
 

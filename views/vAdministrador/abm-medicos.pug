@@ -15,6 +15,13 @@ block content
                     label(for="dni") DNI:
                     input(type="text" name="dni" required)    
                 div
+                div
+                    label(for="telefono") Teléfono:
+                    input(type="text" name="telefono")
+                div
+                    label(for="email") Email:
+                    input(type="email" name="email")
+                div
                     label(for="sucursal") Sucursal:
                     select(name="sucursal_id" required)
                         each sucursal in sucursales
@@ -25,35 +32,10 @@ block content
                         each especialidad in especialidades
                             option(value=especialidad.id) #{especialidad.nombre}
             .column
-                div
-                    label(for="email") Email:
-                    input(type="email" name="email")
-                div
-                    label(for="telefono") Teléfono:
-                    input(type="text" name="telefono")
+
                 div
                     label(for="matricula") Matrícula:
                     input(type="text" name="matricula")
-                div
-                    label(for="fechaInicio") Fecha de inicio:
-                    input(type="date" name="fechaInicio" required)
-                div
-                    label(for="fechaFin") Fecha de fin:
-                    input(type="date" name="fechaFin" required)
-            .column
-                div
-                    label Días de trabajo:
-                    div.checkbox-group
-                        each day in ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
-                            label(for=day) #{day.charAt(0).toUpperCase() + day.slice(1)}
-                            input(type="checkbox" name="dias" value=day)
-                div
-                    label Horario de trabajo:
-                    div.time-group
-                        label(for="horaInicio") Desde:
-                        input(type="time" name="horaInicio" required)
-                        label(for="horaFin") Hasta:
-                        input(type="time" name="horaFin" required)
-            div
+
                 button(type="submit") Agregar Médico
             a.back-button(href="/admin") Volver

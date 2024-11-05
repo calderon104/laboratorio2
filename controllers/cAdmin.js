@@ -106,7 +106,6 @@ const cAdmin = {
       await mAdmin.updateMedico(medicoId, { nombre, apellido, telefono, email });
       res.redirect(`/admin/medicos/${medicoId}/edit`);
     } catch (err) {
-      console.error("Error al actualizar el médico:", err);
       res.status(500).send("Error al actualizar el médico");
     }
   },
@@ -118,7 +117,6 @@ const cAdmin = {
       await mAdmin.addSpecialty(medicoId, especialidad_id, matricula);
       res.redirect(`/admin/medicos/${medicoId}/edit`);
     } catch (err) {
-      console.error("Error al agregar especialidad:", err);
       res.status(500).send("Error al agregar especialidad");
     }
   },
@@ -131,10 +129,16 @@ const cAdmin = {
       await mAdmin.removeSpecialty(medicoId, especialidadId);
       res.redirect(`/admin/medicos/${medicoId}/edit`);
     } catch (err) {
-      console.error("Error al eliminar especialidad:", err);
       res.status(500).send("Error al eliminar especialidad");
     }
   },
+  addAgenda: async (req, res) => {
+    try {
+      const { sucursal_id, tipo_clasificacion, fecha_inicio, fecha_fin } = req.body;
+    } catch (err) {
+      res.status(500).send("Error al crear la agenda");
+    }
+  }
 };
 
 export default cAdmin;

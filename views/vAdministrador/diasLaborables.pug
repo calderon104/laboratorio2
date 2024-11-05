@@ -1,5 +1,28 @@
 extends ../layouts/layout
 
 block content
-    h1= "Gestión de Días No Laborables de Médicos"
-    a.back-button(href="/admin") Volver
+  h1= title
+  main.container
+    h2 Asignar Horarios a #{medico.nombre} #{medico.apellido}
+    
+    form(action=`/admin/medicos/${medico.id}/horarios` method="POST")
+      label Días de trabajo y horarios:
+      div.checkbox-group
+        each day in ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
+          div
+            input(type="checkbox" name="dias" value=day id=day)
+            label(for=day) #{day.charAt(0).toUpperCase() + day.slice(1)}
+
+      div.time-blocks-container#timeBlocksContainer
+        // Bloque inicial de tiempo
+        .time-block
+          label Desde:
+          input(type="time" name="horaInicio[]" required)
+          label Hasta:
+          input(type="time" name="horaFin[]" required)
+
+      // Botón para agregar más bloques de tiempo
+      button(type="button" id="addTimeBlockButton") Añadir otro bloque de horario
+      
+      button(type="submit") Guardar Horarios
+  a.back-button(href="/admin") Volver
