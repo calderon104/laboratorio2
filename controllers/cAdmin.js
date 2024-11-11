@@ -64,6 +64,16 @@ const cAdmin = {
       error.e500(req, res, err);
     }
   },
+  baja: async (req, res) => {
+    try {
+      const medicoId = req.params.id;
+      await mAdmin.bajaMedico(medicoId);
+      res.redirect('/admin/Allmedicos');
+    } catch (err) {
+      console.error("Error al desactivar el médico:", err);
+      error.e500(req, res, err);
+    }
+  },
 
   getAddMedicoForm: async (req, res) => {
     try {
@@ -140,7 +150,7 @@ const cAdmin = {
     try {
       const medicoId = req.params.id;
       const especialidadId = req.params.especialidadId;
-      await mAdmin.removeSpecialty(medicoId, especialidadId);
+      await mAdmin.removeEspecialidad(medicoId, especialidadId);
       res.redirect(`/admin/medicos/${medicoId}/edit`);
     } catch (err) {
       res.status(500).send("Error al eliminar especialidad");

@@ -21,24 +21,32 @@ block content
       button.edit-button(type="submit") Guardar Cambios
     
     // Sección para gestionar especialidades
-  h2 Especialidades
-   ul.especialidades-list
-    each especialidad in medico.especialidades
-      li
-        p #{especialidad.nombre}
-        a.delete-specialty-button(href=`/admin/medicos/${medico.id}/remove-specialty/${especialidad.id}`) Eliminar
+    h3 Especialidades
+    ul.especialidades-list
+      each especialidad in medico.especialidades
+        li
+          p #{especialidad.nombre}
+          a.delete-specialty-button(href=`/admin/medicos/${medico.id}/remove-specialty/${especialidad.id}`) Eliminar
 
-   form(action=`/admin/medicos/${medico.id}/add-specialty` method="POST")
-    label(for="nuevaEspecialidad") Agregar Especialidad
-     br
-     select.small-select(name="especialidad_id" id="nuevaEspecialidad")
-       each especialidad in especialidadesDisponibles
-         option(value=especialidad.id)= especialidad.nombre
+    form(action=`/admin/medicos/${medico.id}/add-specialty` method="POST")
+      label(for="nuevaEspecialidad") Agregar Especialidad
+      br
+      select.small-select(name="especialidad_id" id="nuevaEspecialidad")
+        each especialidad in especialidadesDisponibles
+          option(value=especialidad.id)= especialidad.nombre
 
-     br
-     label(for="matricula") Matrícula
-     input.small-input(type="text" id="matricula" name="matricula" required)
+      br
+      label(for="matricula") Matrícula
+      input.small-input(type="text" id="matricula" name="matricula" required)
 
-     br
-     button.small-button.add-specialty-button(type="submit") Agregar Especialidad
+      br
+      button.small-button.add-specialty-button(type="submit") Agregar Especialidad
+
+    // Nueva sección para desactivar el médico
+  if medico.activo
+    form(action=`/admin/medicos/${medico.id}/delete` method="POST" onsubmit="return confirm('¿Está seguro de que desea desactivar este médico?');")
+      button.deactivate-button(type="submit") Desactivar Médico
+  else
+    p.inactive-message Este médico está actualmente inactivo.
+
   a.back-button(href="/admin/") ↩️ Volver a la lista de médicos

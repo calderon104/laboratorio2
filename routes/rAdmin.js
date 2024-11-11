@@ -10,11 +10,11 @@ routes.get("/admin/medicos/:id/edit", cAdmin.getEditMedicoForm); // Ruta para ve
 routes.post("/admin/medicos/:id/edit", cAdmin.updateMedico); // Ruta para actualizar datos de un médico
 routes.post("/admin/medicos/:id/add-specialty", cAdmin.addSpecialty); // Ruta para agregar especialidad
 routes.get("/admin/medicos/:id/remove-specialty/:especialidadId", cAdmin.removeSpecialty); // Ruta para eliminar especialidad
+routes.post("/admin/medicos/:id/delete", cAdmin.baja);
 // routes.get("/admin/agenda/:id", cAdmin.getAgendaMedico);
 routes.get("/admin/agenda", cAdmin.listAgendas);
 routes.get("/admin/agenda/:id", cAdmin.viewAgendaDetails);
 routes.post("/admin/agenda/update/:id", cAdmin.updateAgenda);
-
 export default routes;
 
 

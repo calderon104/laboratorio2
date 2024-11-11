@@ -28,7 +28,7 @@ const mAdministrador = {
         [profesionalId]
       );
       const [especialidades] = await db.query(
-        `SELECT e.id, e.nombre, pe.matricula
+        `SELECT e.id, e.nombre, pe.matricula 
          FROM especialidad e
          JOIN profesional_especialidad pe ON e.id = pe.id_especialidad
          WHERE pe.id_profesional = ?`,
@@ -40,6 +40,16 @@ const mAdministrador = {
       throw { status: 500, message: "Error al obtener el profesional" };
     }
   },
+  
+  bajaMedico: async (profesionalId) => {
+    try {
+      await db.query("UPDATE profesional SET activo = 0 WHERE id = ?", [profesionalId]);
+    } catch (err) {
+      console.error("Error al desactivar el médico:", err);
+      throw { status: 500, message: "Error al desactivar el médico" };
+    }
+  },
+  
 
   updateProfesional: async (profesionalId, profesionalData) => {
     try {

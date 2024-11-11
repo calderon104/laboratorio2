@@ -1,74 +1,66 @@
 extends ../layouts/layout
 
 block content
-  h1= title
-  main.container
-    h2 Agenda de #{agenda.nombre_profesional} #{agenda.apellido_profesional}
+  .container
+    h1.title= title
+    h2.subtitle Agenda de #{agenda.nombre_profesional} #{agenda.apellido_profesional}
 
-    form(action=`/admin/agenda/update/${agenda.id}`, method="POST")
-      
-      // Selección de Sucursal
-      div.form-group
-        label(for="sucursal") Sucursal
-        select(name="sucursal", id="sucursal", required)
-          option(value="", disabled, selected) Selecciona una sucursal
-          each sucursal in sucursales
-            option(value=sucursal.id, selected=sucursal.id == agenda.id_sucursal)= sucursal.nombre
+    form.agenda-form(action=`/admin/agenda/update/${agenda.id}` method="POST")
+      .form-grid
+        .form-group
+          label.form-label(for="sucursal") Sucursal
+          select.form-select(name="sucursal" id="sucursal" required)
+            option(value="" disabled selected) Selecciona una sucursal
+            each sucursal in sucursales
+              option(value=sucursal.id selected=sucursal.id == agenda.id_sucursal)= sucursal.nombre
 
-      // Fechas de inicio y fin de la agenda
-      div.form-group
-        label(for="fechaInicio") Fecha de inicio de los turnos
-        input(type="date", id="fechaInicio", name="fechaInicio", value=agenda.fecha_inicio ? agenda.fecha_inicio.toISOString().split('T')[0] : '', required)
+        .form-group
+          label.form-label(for="clasificacion") Clasificación
+          select.form-select(name="clasificacion" id="clasificacion" required)
+            option(value="" disabled selected) Selecciona una clasificación
+            each tipo in ['normal', 'especial', 'vip']
+              option(value=tipo selected=tipo == agenda.clasificacion)= tipo.charAt(0).toUpperCase() + tipo.slice(1)
 
-      div.form-group
-        label(for="fechaFin") Fecha de fin de los turnos
-        input(type="date", id="fechaFin", name="fechaFin", value=agenda.fecha_fin ? agenda.fecha_fin.toISOString().split('T')[0] : '', required)
+        .form-group
+          label.form-label(for="fechaInicio") Fecha de inicio
+          input.form-input(type="date" id="fechaInicio" name="fechaInicio" value=agenda.fecha_inicio ? agenda.fecha_inicio.toISOString().split('T')[0] : '' required)
 
-      // Clasificación de la agenda
-      div.form-group
-        label(for="clasificacion") Clasificación
-        select(name="clasificacion", id="clasificacion", required)
-          option(value="", disabled, selected) Selecciona una clasificación
-          each tipo in ['normal', 'especial', 'vip']
-            option(value=tipo, selected=tipo == agenda.clasificacion)= tipo.charAt(0).toUpperCase() + tipo.slice(1)
+        .form-group
+          label.form-label(for="fechaFin") Fecha de fin
+          input.form-input(type="date" id="fechaFin" name="fechaFin" value=agenda.fecha_fin ? agenda.fecha_fin.toISOString().split('T')[0] : '' required)
 
-      // Máximo de sobreturnos
-      div.form-group
-        label(for="max_sobreturnos") Máximo de Sobreturnos
-        select(name="max_sobreturnos", id="max_sobreturnos", required)
-          option(value="", disabled, selected) Selecciona la cantidad de sobreturnos
-          each sobreturno in [0, 1, 2, 3]
-            option(value=sobreturno, selected=sobreturno == agenda.max_sobreturnos)= sobreturno
+        .form-group
+          label.form-label(for="max_sobreturnos") Máximo de Sobreturnos
+          select.form-select(name="max_sobreturnos" id="max_sobreturnos" required)
+            option(value="" disabled selected) Selecciona la cantidad
+            each sobreturno in [0, 1, 2, 3]
+              option(value=sobreturno selected=sobreturno == agenda.max_sobreturnos)= sobreturno
 
-      // Selección de días de trabajo y horarios con checkboxes
-      div.form-group
-        div.time-blocks-container
-          - const horarios = agenda.horarios && agenda.horarios.length ? agenda.horarios : [{}]
-          each horario, index in horarios
-            .time-block
-              label Días de la semana:
-              div.checkboxes
-                each day in ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
-                  label
-                    input(type="checkbox", name=`dias[${index}]`, value=day, checked=horario.dia_semana === day)
-                    span= day.charAt(0).toUpperCase() + day.slice(1)
-              label Horarios de atención
-              label Desde:
-              input(type="time", name=`horaInicio[${index}]`, value=horario.hora_inicio || '', required)
-              
-              label Hasta:
-              input(type="time", name=`horaFin[${index}]`, value=horario.hora_fin || '', required)
+        .form-group
+          label.form-label(for="duracion") Duración de los turnos
+          select.form-select(name="duracion" id="duracion" required)
+            option(value="" disabled selected) Selecciona una duración
+            each dur in [10, 15, 20, 30, 45]
+              option(value=dur selected=dur == agenda.duracion)= `${dur} minutos`
 
-      // Selección de duración del turno
-      div.form-group
-        label(for="duracion") Duración de los turnos (minutos)
-        select(name="duracion", id="duracion", required)
-          option(value="", disabled, selected) Selecciona una duración
-          each dur in [10, 15, 20, 30, 45]
-            option(value=dur, selected=dur == agenda.duracion)= `${dur} minutos`
+      .horarios-section
+        h3.section-title Horarios de atención
+        - const horarios = agenda.horarios && agenda.horarios.length ? agenda.horarios : [{}]
+        each horario, index in horarios
+          .horario-block
+            .dias-semana
+              each day in ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
+                .checkbox-group
+                  input.form-checkbox(type="checkbox" name=`dias[${index}]` value=day id=`${day}-${index}` checked=horario.dia_semana === day)
+                  label.checkbox-label(for=`${day}-${index}`)= day.charAt(0).toUpperCase() + day.slice(1)
+            .horario-inputs
+              .form-group
+                label.form-label(for=`horaInicio-${index}`) Desde
+                input.form-input.time-input(type="time" name=`horaInicio[${index}]` id=`horaInicio-${index}` value=horario.hora_inicio || '' required)
+              .form-group
+                label.form-label(for=`horaFin-${index}`) Hasta
+                input.form-input.time-input(type="time" name=`horaFin[${index}]` id=`horaFin-${index}` value=horario.hora_fin || '' required)
 
-      // Botón para guardar toda la información de la agenda
-      div.form-group
-        button(type="submit", class="btn-primary") Guardar Agenda
-
-  a.back-button(href="/admin/agenda") ↩️ Volver a la lista de agendas
+      .form-actions
+        a.btn.btn-secondary(href="/admin/agenda") Cancelar
+        button.btn.btn-primary(type="submit") Guardar Agenda
