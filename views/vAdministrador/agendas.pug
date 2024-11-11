@@ -1,0 +1,24 @@
+extends ../layouts/layout
+
+block content
+  h1.text-center= title
+  main.container
+    div.text-right
+    table.table-agenda
+      thead
+        tr
+          th Profesional
+          th Especialidad
+          th Acciones
+      tbody
+        if agendas.length === 0
+          tr
+            td(colspan="3") No hay agendas registradas 😃
+        else
+          each agenda in agendas
+            tr.agenda-item
+              td #{agenda.nombre_profesional} #{agenda.apellido_profesional}
+              td #{agenda.especialidad}
+              td
+                a.button-small(href=`/admin/agenda/${agenda.id}`) Ver Detalles
+  a.back-button(href="/admin") ↩️ Volver

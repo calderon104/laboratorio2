@@ -12,6 +12,6 @@ block content
         each medico in medicos
           li.medico-item
             a(href=`/admin/medicos/${medico.id}/edit`) #{medico.nombre} #{medico.apellido}
-            p Especialidad: #{medico.especialidad}
+            p Especialidad: #{medico.especialidades}
             p DNI: #{medico.dni}
       a.back-button(href="/admin/") ↩️ Volver

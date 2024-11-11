@@ -11,9 +11,9 @@ const mAdministrador = {
          WHERE p.activo = TRUE
          GROUP BY p.id`
       );
-      return rows.map(row => ({
+      return rows.map((row) => ({
         ...row,
-        especialidades: row.especialidades ? row.especialidades.split(',') : []
+        especialidades: row.especialidades ? row.especialidades.split(",") : [],
       }));
     } catch (err) {
       console.error("Error al obtener profesionales:", err);
@@ -23,7 +23,10 @@ const mAdministrador = {
 
   getMedicoById: async (profesionalId) => {
     try {
-      const [profesional] = await db.query("SELECT * FROM profesional WHERE id = ?", [profesionalId]);
+      const [profesional] = await db.query(
+        "SELECT * FROM profesional WHERE id = ?",
+        [profesionalId]
+      );
       const [especialidades] = await db.query(
         `SELECT e.id, e.nombre, pe.matricula
          FROM especialidad e
@@ -40,7 +43,10 @@ const mAdministrador = {
 
   updateProfesional: async (profesionalId, profesionalData) => {
     try {
-      await db.query("UPDATE profesional SET ? WHERE id = ?", [profesionalData, profesionalId]);
+      await db.query("UPDATE profesional SET ? WHERE id = ?", [
+        profesionalData,
+        profesionalId,
+      ]);
     } catch (err) {
       console.error("Error al actualizar profesional:", err);
       throw { status: 500, message: "Error al actualizar el profesional" };
@@ -71,39 +77,52 @@ const mAdministrador = {
     }
   },
 
-  create: async (profesionalData, especialidades, agendas) => {
+  create: async (profesionalData, especialidadData, agendaData) => {
     const connection = await db.getConnection();
     try {
       await connection.beginTransaction();
 
-      profesionalData.activo = profesionalData.activo ?? true;
+      // Crear el profesional
       const [profesionalResult] = await connection.query(
         "INSERT INTO profesional SET ?",
         [profesionalData]
       );
       const profesionalId = profesionalResult.insertId;
 
-      for (const esp of especialidades) {
-        await connection.query(
-          "INSERT INTO profesional_especialidad (id_profesional, id_especialidad, matricula) VALUES (?, ?, ?)",
-          [profesionalId, esp.id_especialidad, esp.matricula]
-        );
-      }
+      // Asociar especialidad al profesional
+      await connection.query(
+        "INSERT INTO profesional_especialidad (id_profesional, id_especialidad, matricula) VALUES (?, ?, ?)",
+        [
+          profesionalId,
+          especialidadData.id_especialidad,
+          especialidadData.matricula,
+        ]
+      );
 
-      for (const agenda of agendas) {
-        const [agendaResult] = await connection.query(
-          "INSERT INTO agenda (id_profesional, id_especialidad, id_sucursal, fecha_inicio, fecha_fin, clasificacion, max_sobreturnos) VALUES (?, ?, ?, ?, ?, ?, ?)",
-          [profesionalId, agenda.id_especialidad, agenda.id_sucursal, agenda.fecha_inicio, agenda.fecha_fin, agenda.clasificacion, agenda.max_sobreturnos]
-        );
-        const agendaId = agendaResult.insertId;
+      // Asignar valores predeterminados si faltan
+      const agendaDataWithDefaults = {
+        id_profesional: profesionalId,
+        id_especialidad: agendaData.id_especialidad,
+        id_sucursal: agendaData.id_sucursal || 1, // Sucursal predeterminada
+        fecha_inicio: agendaData.fecha_inicio || "2024-01-01", // Fecha inicial predeterminada
+        fecha_fin: agendaData.fecha_fin || "2024-12-31", // Fecha final predeterminada
+        clasificacion: agendaData.clasificacion || "General", // Clasificación predeterminada
+        max_sobreturnos: agendaData.max_sobreturnos || 0, // Sobreturnos predeterminados
+      };
 
-        for (const horario of agenda.horarios) {
-          await connection.query(
-            "INSERT INTO horario_laboral (id_agenda, dia_semana, hora_inicio, hora_fin, duracion_turno) VALUES (?, ?, ?, ?, ?)",
-            [agendaId, horario.dia_semana, horario.hora_inicio, horario.hora_fin, horario.duracion_turno]
-          );
-        }
-      }
+      // Crear la agenda con valores predeterminados
+      const [agendaResult] = await connection.query(
+        "INSERT INTO agenda (id_profesional, id_especialidad, id_sucursal, fecha_inicio, fecha_fin, clasificacion, max_sobreturnos) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+          agendaDataWithDefaults.id_profesional,
+          agendaDataWithDefaults.id_especialidad,
+          agendaDataWithDefaults.id_sucursal,
+          agendaDataWithDefaults.fecha_inicio,
+          agendaDataWithDefaults.fecha_fin,
+          agendaDataWithDefaults.clasificacion,
+          agendaDataWithDefaults.max_sobreturnos,
+        ]
+      );
 
       await connection.commit();
       return profesionalId;
@@ -148,27 +167,14 @@ const mAdministrador = {
       return results;
     } catch (err) {
       console.error("Error al obtener especialidades disponibles:", err);
-      throw { status: 500, message: "Error al obtener especialidades disponibles" };
+      throw {
+        status: 500,
+        message: "Error al obtener especialidades disponibles",
+      };
     }
   },
 
-  getTurnosDisponibles: async (agendaId, fecha) => {
-    try {
-      const [results] = await db.query(
-        `SELECT t.id, t.hora_inicio, t.hora_fin
-         FROM turno t
-         JOIN agenda a ON t.id_agenda = a.id
-         WHERE a.id = ? AND t.fecha = ? AND t.estado = 'disponible'
-         ORDER BY t.hora_inicio`,
-        [agendaId, fecha]
-      );
-      return results;
-    } catch (err) {
-      console.error("Error al obtener turnos disponibles:", err);
-      throw { status: 500, message: "Error al obtener turnos disponibles" };
-    }
-  },
-
+  // AGENDAS AQUI
   getAgendasProfesional: async (profesionalId) => {
     try {
       const [results] = await db.query(
@@ -182,22 +188,115 @@ const mAdministrador = {
       return results;
     } catch (err) {
       console.error("Error al obtener agendas del profesional:", err);
-      throw { status: 500, message: "Error al obtener agendas del profesional" };
+      throw {
+        status: 500,
+        message: "Error al obtener agendas del profesional",
+      };
     }
   },
-
-  getHorariosLaborales: async (agendaId) => {
+  getAllAgendas: async () => {
+    const connection = await db.getConnection();
     try {
-      const [results] = await db.query(
-        "SELECT * FROM horario_laboral WHERE id_agenda = ?",
+      const [agendas] = await connection.query(`
+            SELECT 
+                agenda.id,
+                profesional.nombre AS nombre_profesional,
+                profesional.apellido AS apellido_profesional,
+                especialidad.nombre AS especialidad
+            FROM agenda
+            JOIN profesional ON agenda.id_profesional = profesional.id
+            JOIN especialidad ON agenda.id_especialidad = especialidad.id
+        `);
+      return agendas;
+    } catch (err) {
+      console.error("Error al obtener las agendas:", err);
+      throw { status: 500, message: "Error al obtener las agendas" };
+    } finally {
+      connection.release();
+    }
+  },
+  getAgendaById: async (agendaId) => {
+    const connection = await db.getConnection();
+    try {
+      const [agendaDetails] = await connection.query(
+        `
+      SELECT 
+        agenda.*,
+        profesional.nombre AS nombre_profesional,
+        profesional.apellido AS apellido_profesional,
+        especialidad.nombre AS especialidad
+      FROM agenda
+      JOIN profesional ON agenda.id_profesional = profesional.id
+      JOIN especialidad ON agenda.id_especialidad = especialidad.id
+      WHERE agenda.id = ?
+    `,
         [agendaId]
       );
-      return results;
+
+      const [horarios] = await connection.query(
+        `
+      SELECT dia_semana, hora_inicio, hora_fin
+      FROM horario_laboral
+      WHERE id_agenda = ?
+    `,
+        [agendaId]
+      );
+
+      const diasLaborables = [...new Set(horarios.map((h) => h.dia_semana))];
+
+      return {
+        ...agendaDetails[0],
+        dias_laborables: diasLaborables,
+        horarios: horarios,
+      };
     } catch (err) {
-      console.error("Error al obtener horarios laborales:", err);
-      throw { status: 500, message: "Error al obtener horarios laborales" };
+      console.error("Error al obtener los detalles de la agenda:", err);
+      throw {
+        status: 500,
+        message: "Error al obtener los detalles de la agenda",
+      };
+    } finally {
+      connection.release();
     }
   },
+  updateAgenda: async (agendaId, updatedData, horarios) => {
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // Actualizar la tabla agenda
+    await connection.query(
+      "UPDATE agenda SET id_sucursal = ?, fecha_inicio = ?, fecha_fin = ?, clasificacion = ?, max_sobreturnos = ? WHERE id = ?",
+      [
+        updatedData.id_sucursal,
+        updatedData.fecha_inicio,
+        updatedData.fecha_fin,
+        updatedData.clasificacion,
+        updatedData.max_sobreturnos,
+        agendaId,
+      ]
+    );
+
+    // *** Nueva sección: Eliminar horarios anteriores ***
+    await connection.query("DELETE FROM horario_laboral WHERE id_agenda = ?", [agendaId]);
+
+    // Insertar los nuevos horarios laborales
+    if (horarios.length > 0) {
+      const insertQuery = "INSERT INTO horario_laboral (id_agenda, dia_semana, hora_inicio, hora_fin, duracion_turno) VALUES ?";
+      const values = horarios.map(h => [agendaId, h.dia_semana, h.hora_inicio, h.hora_fin, h.duracion_turno]);
+      await connection.query(insertQuery, [values]);
+    }
+
+    await connection.commit();
+  } catch (err) {
+    await connection.rollback();
+    console.error("Error al actualizar la agenda:", err);
+    throw { status: 500, message: "Error al actualizar la agenda" };
+  } finally {
+    connection.release();
+  }
+},
+
 };
 
 export default mAdministrador;

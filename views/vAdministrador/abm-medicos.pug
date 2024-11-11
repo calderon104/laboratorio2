@@ -21,8 +21,8 @@ block content
                 div
                     label(for="email") Email:
                     input(type="email" name="email")
-                div
-                    label(for="sucursal") Sucursal:
+                div 
+                    label(for="sucursal") Sucursal
                     select(name="sucursal_id" required)
                         each sucursal in sucursales
                             option(value=sucursal.id) #{sucursal.nombre}
