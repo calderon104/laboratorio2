@@ -2,40 +2,44 @@ extends ../layouts/layout
 
 block content
     h1 Nuevo Médico
+    if errors && errors.length > 0
+        .alert.alert-danger
+            ul
+                each error in errors
+                    li= error
+
     .form-container
         form(action="/admin/medicos" method="POST")
             .column
                 div
                     label(for="nombre") Nombre:
-                    input(type="text" name="nombre" required)
+                    input(type="text" name="nombre" value=(typeof nombre !== 'undefined' ? nombre : '') required)
                 div
                     label(for="apellido") Apellido:
-                    input(type="text" name="apellido" required)
+                    input(type="text" name="apellido" value=(typeof apellido !== 'undefined' ? apellido : '') required)
                 div
                     label(for="dni") DNI:
-                    input(type="text" name="dni" required)    
-                div
+                    input(type="text" name="dni" value=(typeof dni !== 'undefined' ? dni : '') required)    
                 div
                     label(for="telefono") Teléfono:
-                    input(type="text" name="telefono")
+                    input(type="text" name="telefono" value=(typeof telefono !== 'undefined' ? telefono : ''))
                 div
                     label(for="email") Email:
-                    input(type="email" name="email")
+                    input(type="email" name="email" value=(typeof email !== 'undefined' ? email : ''))
                 div 
                     label(for="sucursal") Sucursal
                     select(name="sucursal_id" required)
                         each sucursal in sucursales
-                            option(value=sucursal.id) #{sucursal.nombre}
+                            option(value=sucursal.id selected=(sucursal_id == sucursal.id)) #{sucursal.nombre}
                 div
                     label(for="especialidad") Especialidad:
                     select(name="especialidad_id" required)
                         each especialidad in especialidades
-                            option(value=especialidad.id) #{especialidad.nombre}
+                            option(value=especialidad.id selected=(especialidad_id == especialidad.id)) #{especialidad.nombre}
             .column
-
                 div
                     label(for="matricula") Matrícula:
-                    input(type="text" name="matricula")
+                    input(type="text" name="matricula" value=(typeof matricula !== 'undefined' ? matricula : ''))
 
                 button(type="submit") Agregar Médico    
             a.back-button(href="/admin") Volver

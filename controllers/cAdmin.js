@@ -17,8 +17,46 @@ const cAdmin = {
         matricula,
         sucursal_id,
       } = req.body;
+  
+      const errores = [];
+      if (!nombre || nombre.trim() === "") {
+        errores.push("El nombre es obligatorio");
+      }
+      if (!apellido || apellido.trim() === "") {
+        errores.push("El apellido es obligatorio");
+      }
+      if (!dni || isNaN(dni)) {
+        errores.push("El DNI es obligatorio y debe ser un número");
+      }
+      if (!especialidad_id || isNaN(especialidad_id)) {
+        errores.push("Debe seleccionar una especialidad válida");
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        errores.push("Debe proporcionar un email válido");
+      }
+      const telefonoRegex = /^[0-9]{7,15}$/;
+      if (!telefono || !telefonoRegex.test(telefono)) {
+        errores.push("Debe proporcionar un teléfono válido");
+      }
 
-      // Datos del profesional
+      if (!matricula || isNaN(matricula)) {
+        errores.push("La matrícula es obligatoria y debe ser un número");
+      }
+
+      if (sucursal_id && isNaN(sucursal_id)) {
+        errores.push("La sucursal debe ser un número");
+      }
+      if (errores.length > 0) {
+        const sucursales = await mAdmin.getSucursales();
+        const especialidades = await mAdmin.getEspecialidades();
+        return res.status(400).render("vAdministrador/abm-medicos", {
+          title: "Agregar Médico",
+          errors: errores,
+          sucursales,
+          especialidades,
+        });
+      }
       const profesionalData = {
         nombre,
         apellido,
@@ -27,33 +65,28 @@ const cAdmin = {
         telefono,
         activo: true,
       };
-
-      // Datos de la especialidad del profesional
       const especialidadData = {
         id_especialidad: especialidad_id,
         matricula,
       };
-
-      // Datos de la agenda
       const agendaData = {
         id_especialidad: especialidad_id,
-        id_sucursal: sucursal_id || null, // asegúrate de pasar un valor válido si es obligatorio
-        fecha_inicio: null, // inicializa según disponibilidad
-        fecha_fin: null, // inicializa según disponibilidad
-        clasificacion: null, // inicializa según disponibilidad
-        max_sobreturnos: null, // inicializa según disponibilidad
+        id_sucursal: sucursal_id || null,
+        fecha_inicio: null,
+        fecha_fin: null,
+        clasificacion: null,
+        max_sobreturnos: null,
       };
 
       const newMedicoId = await mAdmin.create(
         profesionalData,
         especialidadData,
         agendaData,
-        null // Pasando null para horarioData ya que aún no se utiliza
+        null
       );
-
       const sucursales = await mAdmin.getSucursales();
       const especialidades = await mAdmin.getEspecialidades();
-
+  
       res.render("vAdministrador/abm-medicos", {
         title: "Agregar Médico",
         newMedico: newMedicoId,
@@ -61,9 +94,11 @@ const cAdmin = {
         especialidades,
       });
     } catch (err) {
+      console.error("Error al agregar médico:", err);
       error.e500(req, res, err);
     }
   },
+  
   baja: async (req, res) => {
     try {
       const medicoId = req.params.id;
@@ -157,7 +192,6 @@ const cAdmin = {
     }
   },
 
-  // Controlador para mostrar todas las agendas
   listAgendas: async (req, res) => {
     try {
       const agendas = await mAdmin.getAllAgendas();
@@ -208,7 +242,6 @@ const cAdmin = {
         duracion,
       } = req.body;
   
-      // Validar que los datos requeridos estén presentes
       if (!sucursal || !fechaInicio || !fechaFin || !clasificacion || !max_sobreturnos || !duracion) {
         return res.status(400).send({ message: "Faltan datos obligatorios" });
       }

@@ -1,0 +1,14 @@
+extends ../layouts/layout
+
+block content
+  h1= title
+
+  .form-container
+    form(action="/pacientes/buscar" method="POST")
+      div
+        label(for="dni") Ingrese DNI:
+        input(type="text" name="dni" placeholder="Buscar por DNI" required)
+      button(type="submit") Buscar
+      
+    h3 Nuevo paciente?
+    a(href="/pacientes/registrarse" class="button") Registrarse

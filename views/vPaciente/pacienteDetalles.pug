@@ -1,0 +1,57 @@
+extends ../layouts/layout
+
+block content
+  h1= title
+
+  // Información del paciente
+  if paciente
+    .paciente-info
+      h2 Información del Paciente
+      p 
+        strong Nombre: 
+        span #{paciente.nombre}
+      p 
+        strong Apellido: 
+        span #{paciente.apellido}
+      p 
+        strong DNI: 
+        span #{paciente.dni}
+      p 
+        strong Teléfono: 
+        span #{paciente.telefono || "No registrado"}
+      p 
+        strong Email: 
+        span #{paciente.email || "No registrado"}
+      p 
+        strong Obra Social: 
+        span #{paciente.obra_social || "No registrado"}
+  else
+    p No se encontró información del paciente.
+
+  hr
+
+  // Lista de médicos con sus especialidades
+  if medicos.length > 0
+    h2 Seleccione un Profesional para su Turno
+    table
+      thead
+        tr
+          th Nombre
+          th Apellido
+          th Especialidad
+          th Seleccionar
+      tbody
+        each medico in medicos
+          tr
+            td #{medico.nombre}
+            td #{medico.apellido}
+            td #{medico.especialidades}
+            // Botón para seleccionar al médico
+            td
+              form(action=`/turno/agendar/${medico.id}?idPaciente=${paciente.id}` method="GET")
+                button(type="submit") Elegir Médico
+  else
+    p No hay médicos disponibles en este momento.
+
+  br
+  a.button(href="/pacientesMain") Volver
