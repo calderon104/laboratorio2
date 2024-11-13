@@ -1,22 +1,14 @@
- import mysql2 from "mysql2/promise";
+import mysql2 from "mysql2/promise";
+import dotenv from "dotenv";
 
-//  import mysql2 from "mysql2";
-// const connection  = mysql2.createPool({
-//   host: process.env.DB_HOST,
-//   user: process.env.DB_USER ,
-//   password: process.env.DB_PASSWORD,
-//   database: process.env.DB_DATABASE,
-//   waitForConnections: true,
-//   connectionLimit: 10,
-// });
+dotenv.config();
 
-// export default connection ;
-
-
-const connection = new mysql2.createConnection({
+const connection = await mysql2.createConnection({
   host: process.env.DB_HOST,
-  user: process.env.DB_USER ,
+  user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT, // Asegúrate de que sea 3306
 });
-export default connection ;
+
+export default connection;
