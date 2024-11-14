@@ -1,7 +1,9 @@
+import dotenv from "dotenv";
+dotenv.config(); // Asegúrate de que esta línea esté antes de cualquier uso de process.env
+
 import express from "express";
 import session from "express-session";
 import path from "path";
-import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import cors from "cors";
@@ -18,7 +20,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-dotenv.config({ path: join(__dirname, ".env") });
 
 app.use(cors());
 app.use(helmet());
@@ -47,6 +48,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).render("error", { message: "Error interno del servidor" });
 });
+
 app.listen(PORT, () => {
   console.log(`Servidor en http://localhost:${PORT}`);
 });
