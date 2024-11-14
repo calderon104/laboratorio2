@@ -269,44 +269,83 @@ const mAdministrador = {
       connection.release();
     }
   },
-  updateAgenda: async (agendaId, updatedData, horarios) => {
-  const connection = await db.getConnection();
-  try {
-    await connection.beginTransaction();
-
-    // Actualizar la tabla agenda
-    await connection.query(
-      "UPDATE agenda SET id_sucursal = ?, fecha_inicio = ?, fecha_fin = ?, clasificacion = ?, max_sobreturnos = ? WHERE id = ?",
-      [
-        updatedData.id_sucursal,
-        updatedData.fecha_inicio,
-        updatedData.fecha_fin,
-        updatedData.clasificacion,
-        updatedData.max_sobreturnos,
-        agendaId,
-      ]
-    );
-
-    // *** Nueva sección: Eliminar horarios anteriores ***
-    await connection.query("DELETE FROM horario_laboral WHERE id_agenda = ?", [agendaId]);
-
-    // Insertar los nuevos horarios laborales
-    if (horarios.length > 0) {
-      const insertQuery = "INSERT INTO horario_laboral (id_agenda, dia_semana, hora_inicio, hora_fin, duracion_turno) VALUES ?";
-      const values = horarios.map(h => [agendaId, h.dia_semana, h.hora_inicio, h.hora_fin, h.duracion_turno]);
-      await connection.query(insertQuery, [values]);
+  updateAgenda: async (agendaId, updatedData, horarios, fechaInicio, fechaFin) => {
+    const connection = await db.getConnection();
+    try {
+      await connection.beginTransaction();
+  
+      // Actualizar la tabla agenda
+      await connection.query(
+        "UPDATE agenda SET id_sucursal = ?, fecha_inicio = ?, fecha_fin = ?, clasificacion = ?, max_sobreturnos = ? WHERE id = ?",
+        [
+          updatedData.id_sucursal,
+          updatedData.fecha_inicio,
+          updatedData.fecha_fin,
+          updatedData.clasificacion,
+          updatedData.max_sobreturnos,
+          agendaId,
+        ]
+      );
+  
+      // Eliminar horarios anteriores
+      await connection.query("DELETE FROM horario_laboral WHERE id_agenda = ?", [agendaId]);
+  
+      // Insertar los nuevos horarios laborales
+      if (horarios.length > 0) {
+        const insertQuery = "INSERT INTO horario_laboral (id_agenda, dia_semana, hora_inicio, hora_fin, duracion_turno) VALUES ?";
+        const values = horarios.map(h => [agendaId, h.dia_semana, h.hora_inicio, h.hora_fin, h.duracion_turno]);
+        await connection.query(insertQuery, [values]);
+      }
+  
+      // *** Eliminar turnos anteriores ***
+      await connection.query("DELETE FROM turno WHERE id_agenda = ?", [agendaId]);
+  
+      // Generar nuevos turnos
+      const fechaInicioObj = new Date(fechaInicio);
+      const fechaFinObj = new Date(fechaFin);
+      const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  
+      for (let fecha = fechaInicioObj; fecha <= fechaFinObj; fecha.setDate(fecha.getDate() + 1)) {
+        const diaSemana = diasSemana[fecha.getDay()];
+        const horario = horarios.find(h => h.dia_semana === diaSemana);
+        
+        if (horario) {
+          const horaInicio = new Date(fecha);
+          const [hora, minuto] = horario.hora_inicio.split(':');
+          horaInicio.setHours(hora, minuto);
+  
+          const horaFin = new Date(fecha);
+          const [horaFinHora, minutoFin] = horario.hora_fin.split(':');
+          horaFin.setHours(horaFinHora, minutoFin);
+  
+          // Generar turnos según la duración establecida
+          while (horaInicio < horaFin) {
+            const horaFinTurno = new Date(horaInicio);
+            horaFinTurno.setMinutes(horaFinTurno.getMinutes() + horario.duracion_turno);
+  
+            if (horaFinTurno > horaFin) break;
+  
+            // Insertar turno en la base de datos
+            await connection.query(
+              "INSERT INTO turno (id_agenda, fecha, hora_inicio, hora_fin, estado) VALUES (?, ?, ?, ?, 'disponible')",
+              [agendaId, fecha.toISOString().split('T')[0], horaInicio.toTimeString().split(' ')[0], horaFinTurno.toTimeString().split(' ')[0]]
+            );
+  
+            // Avanzar al siguiente turno
+            horaInicio.setMinutes(horaInicio.getMinutes() + horario.duracion_turno);
+          }
+        }
+      }
+  
+      await connection.commit();
+    } catch (err) {
+      await connection.rollback();
+      console.error("Error al actualizar la agenda:", err);
+      throw { status: 500, message: "Error al actualizar la agenda" };
+    } finally {
+      connection.release();
     }
-
-    await connection.commit();
-  } catch (err) {
-    await connection.rollback();
-    console.error("Error al actualizar la agenda:", err);
-    throw { status: 500, message: "Error al actualizar la agenda" };
-  } finally {
-    connection.release();
-  }
-},
-
+  },
 };
 
 export default mAdministrador;

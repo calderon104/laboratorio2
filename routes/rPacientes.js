@@ -5,10 +5,9 @@ import path from "path";
 
 const routes = Router();
 
-// Configuración de multer para la subida de archivos
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/uploads"); // Carpeta donde se guardarán los archivos
+    cb(null, "public/uploads");
   },
   filename: (req, file, cb) => {
     cb(null, `dni_${Date.now()}${path.extname(file.originalname)}`);
@@ -21,11 +20,11 @@ const upload = multer({ storage });
 routes.get("/pacientesMain", cPacientes.getFormMain);
 routes.post("/pacientes/buscar", cPacientes.buscarPorDNI);
 routes.get("/pacientes/registrarse", cPacientes.getForm);
-
-// **Ajustar esta ruta para manejar la subida del archivo**
 routes.post("/paciente/registrarse", upload.single("dni_copia"), cPacientes.create);
-
-// routes.get("/paciente/:id", cPacientes.getPacienteById);
 routes.post("/paciente/:id/upload", upload.single("dni_copia"), cPacientes.uploadDni);
+// routes.get('/turnos-disponibles', cPacientes.verTurnosDisponibles);
+routes.post('/reservar-turno', cPacientes.reservarTurno);
+routes.get('/turnos/:idMedico', cPacientes.verTurnosPorMedico); // Nueva ruta para ver turnos por médico
+
 
 export default routes;

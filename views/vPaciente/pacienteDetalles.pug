@@ -48,10 +48,11 @@ block content
             td #{medico.especialidades}
             // Botón para seleccionar al médico
             td
-              form(action=`/turno/agendar/${medico.id}?idPaciente=${paciente.id}` method="GET")
+              form(action=`/turnos/${medico.id}` method="GET")  
+                input(type="hidden" name="dni" value=paciente.dni)  
                 button(type="submit") Elegir Médico
   else
     p No hay médicos disponibles en este momento.
 
   br
-  a.button(href="/pacientesMain") Volver
+  a.button(href="/pacientesMain") ↩️ Volver

@@ -1,0 +1,30 @@
+extends ../layouts/layout
+
+block content
+  h1 Turnos para #{medico.nombre} #{medico.apellido}
+  
+  form(method="GET" action=`/turnos/${medico.id}`)
+    input(type="hidden" name="dni" value=dni)
+    .calendar
+      each date in calendarDates
+        - const isSelected = formatDate(date) === formatDate(selectedDate)
+        button(
+          type="submit" 
+          name="fecha" 
+          value=formatDate(date)
+          class=isSelected ? 'selected' : ''
+        )= date.getDate()
+
+  h2 Turnos Disponibles para #{formatDateLocale(selectedDate)}
+  
+  if turnos.length > 0
+    ul.turnos-list
+      each turno in turnos
+        li.turno-item
+          span #{turno.hora_inicio.slice(0, 5)} - #{turno.hora_fin.slice(0, 5)}
+          form(method="POST" action="/reservar-turno")
+            input(type="hidden" name="id_turno" value=turno.id)
+            input(type="hidden" name="dni" value=dni)
+            button(type="submit") Reservar Turno
+  else
+    p No hay turnos disponibles para la fecha seleccionada.

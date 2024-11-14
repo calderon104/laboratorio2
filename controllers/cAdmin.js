@@ -40,8 +40,8 @@ const cAdmin = {
         errores.push("Debe proporcionar un teléfono válido");
       }
 
-      if (!matricula || isNaN(matricula)) {
-        errores.push("La matrícula es obligatoria y debe ser un número");
+      if (!matricula) {
+        errores.push("La matrícula es obligatoria");
       }
 
       if (sucursal_id && isNaN(sucursal_id)) {
@@ -133,7 +133,14 @@ const cAdmin = {
       res.status(500).send("Error al obtener médicos");
     }
   },
-
+  obtenerMedicoPorId: async (id) => {
+    try {
+      const medico = await mAdmin.getMedicoById(id);
+      return medico;
+    } catch (err) {
+      res.status(500).send("Error al obtener el médico");
+    }
+  },
   getEditMedicoForm: async (req, res) => {
     try {
       const medicoId = req.params.id;
@@ -266,7 +273,7 @@ const cAdmin = {
       for (let i = 0; i < horaInicio.length; i++) {
         const diasSeleccionados = Array.isArray(dias[i]) ? dias[i] : [dias[i]];
         diasSeleccionados.forEach(dia => {
-          if (dia) {  // Asegurarse de que el día no sea undefined o null
+          if (dia) { 
             horarios.push({
               dia_semana: dia,
               hora_inicio: horaInicio[i],
@@ -277,17 +284,30 @@ const cAdmin = {
         });
       }
   
-      // Llamar al modelo para actualizar la agenda
-      await mAdmin.updateAgenda(agendaId, agendaData, horarios);
+      // Llamar al modelo para actualizar la agenda y generar turnos
+      await mAdmin.updateAgenda(agendaId, agendaData, horarios, fechaInicio, fechaFin);
   
-      // Redirigir a la página de la agenda
+      // Redirigir a la página de la agenda actualizada
       res.redirect(`/admin/agenda/${agendaId}`);
     } catch (err) {
       console.error("Error al actualizar la agenda:", err);
       res.status(500).send({ message: "Error al actualizar la agenda" });
     }
   },
-  
+  verTurnosPorMedico: async (idMedico) => {
+    try {
+      const [result] = await db.query(`
+        SELECT t.id, t.fecha, t.hora_inicio, t.hora_fin
+        FROM turno t
+        JOIN agenda a ON t.id_agenda = a.id
+        WHERE a.id_profesional = ? AND t.id_paciente IS NULL AND t.estado = 'disponible'
+        ORDER BY t.fecha, t.hora_inicio;
+      `, [idMedico]);
+      return result;
+    } catch (err) {
+      throw { status: 500, message: "Error al obtener los turnos por médico" };
+    }
+  },
 };
 
 export default cAdmin;

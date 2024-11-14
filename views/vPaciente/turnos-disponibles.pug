@@ -1,0 +1,28 @@
+extends layout
+
+block content
+  h1 Seleccionar Turno
+  
+  form(method="POST" action="/reservar-turno")
+    input(type="hidden" name="dni" value=dni) // Incluimos el DNI en el formulario
+    table
+      thead
+        tr
+          th Fecha
+          th Hora Inicio
+          th Hora Fin
+          th Profesional
+          th Especialidad
+          th Seleccionar
+      tbody
+        each turno in turnos
+          tr
+            td= turno.fecha
+            td= turno.hora_inicio
+            td= turno.hora_fin
+            td= turno.nombre_profesional
+            td= turno.nombre_especialidad
+            td
+              input(type="radio" name="id_turno" value=turno.id required)
+    
+    button(type="submit") Confirmar Turno
