@@ -2,41 +2,34 @@ extends ../layouts/layout
 
 block content
   h1= title
-  .form-container
-    form(action="/paciente/registrarse" method="POST" enctype="multipart/form-data")
-      // Mensaje de éxito si se agrega un nuevo paciente
-      if newPaciente
-        .alert.alert-success Paciente ha sido agregado exitosamente.
+  if error
+    p.error= error
+  form(action="/paciente/registrarse" method="POST" enctype="multipart/form-data")
+    div
+      label(for="nombre") Nombre:
+      input(type="text" id="nombre" name="nombre" required)
+    div
+      label(for="apellido") Apellido:
+      input(type="text" id="apellido" name="apellido" required)
+    div
+      label(for="dni") DNI:
+      input(type="text" id="dni" name="dni" required)
+    div
+      label(for="fecha_nacimiento") Fecha de Nacimiento:
+      input(type="date" id="fecha_nacimiento" name="fecha_nacimiento" required)
+    div
+      label(for="telefono") Teléfono:
+      input(type="tel" id="telefono" name="telefono")
+    div
+      label(for="email") Email:
+      input(type="email" id="email" name="email")
+    div
+      label(for="obra_social") Obra Social:
+      input(type="text" id="obra_social" name="obra_social")
+    div
+      label(for="dni_copia") Copia del DNI (JPG, PNG o PDF):
+      input(type="file" id="dni_copia" name="dni_copia" accept=".jpg,.jpeg,.png,.pdf")
+    div
+      button(type="submit") Registrar Paciente
 
-      // Formulario para agregar un nuevo paciente
-      div
-        label(for="nombre") Nombre:
-        input(type="text" name="nombre" placeholder="Ingrese su nombre" required)
-      div
-        label(for="apellido") Apellido:
-        input(type="text" name="apellido" placeholder="Ingrese su apellido" required)
-      div
-        label(for="dni") DNI:
-        input(type="text" name="dni" placeholder="Ingrese su DNI" required pattern="\\d{7,8}" title="Ingrese un DNI válido (solo números, 7-8 dígitos)")
-      div
-        label(for="fecha_nacimiento") Fecha de Nacimiento:
-        input(type="date" name="fecha_nacimiento" required)
-      div
-        label(for="telefono") Teléfono:
-        input(type="text" name="telefono" placeholder="Ingrese su teléfono" title="Ingrese un número de teléfono válido (10 dígitos)")
-      div
-        label(for="email") Email:
-        input(type="email" name="email" placeholder="Ingrese su email")
-      div
-        label(for="obra_social") Obra Social:
-        input(type="text" name="obra_social" placeholder="Ingrese su obra social")
-      div
-        label(for="dni_copia") Subir Fotocopia del DNI:
-        input(type="file" name="dni_copia" accept="image/*,application/pdf" required)
-        p.help-text Archivos permitidos: imágenes (JPG, PNG) o PDF.
-      
-      div
-        button(type="submit") Agregar Paciente
-
-    // Link para volver a la página principal
-    a.button(href="/pacientesMain") ↩️ Volver
+    a.back-button(href="/") ↩️ Volver

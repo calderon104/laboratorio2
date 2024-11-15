@@ -2,7 +2,7 @@ import mPacientes from "../models/mPaciente.js";
 import mAdministrador from "../models/mAdminitrador.js";
 import { format } from "date-fns";
 import { es } from "date-fns/locale/es";
-
+import { put } from '@vercel/blob';
 const cPacientes = {
   getFormMain: (req, res) => {
     res.render("vPaciente/pacienteMain", { title: "Bienvenido" });
@@ -23,7 +23,15 @@ const cPacientes = {
         email,
         obra_social,
       } = req.body;
-      const dni_copia = req.file ? req.file.filename : null;
+
+      let dni_copia_url = null;
+
+      if (req.file) {
+        const blob = await put(`dni_${Date.now()}_${req.file.originalname}`, req.file.buffer, {
+          access: 'public',
+        });
+        dni_copia_url = blob.url;
+      }
 
       const paciente = {
         nombre,
@@ -33,7 +41,7 @@ const cPacientes = {
         telefono,
         email,
         obra_social,
-        dni_copia,
+        dni_copia: dni_copia_url,
       };
       await mPacientes.create(paciente);
       res.redirect("/pacientesMain");
@@ -41,8 +49,7 @@ const cPacientes = {
       console.error("Error al crear paciente:", err);
       res.status(500).render("vPaciente/paciente", {
         title: "Registrar Paciente",
-        error:
-          "Hubo un problema al registrar el paciente. Inténtalo nuevamente.",
+        error: "Hubo un problema al registrar el paciente. Inténtalo nuevamente.",
       });
     }
   },
