@@ -1,77 +1,93 @@
-//TODO
-
-import mPacientes from "../models/mPaciente.js";
-// import mTurnos from "../models/mTurnos.js";
-// import mProfesionales from "../models/mProfesionales.js";
+import mSecretaria from "../models/mSecretaria.js"; // Cambié mPacientes a mSecretaria
 
 const cSecretaria = {
-    homeSecretaria: (req, res) => {
-        res.render("vSecretaria/secretaria");
-    },
-  // Mostrar el formulario para agregar un paciente
+  // Vista principal de secretaria
+  homeSecretaria: (req, res) => {
+    res.render("vSecretaria/secretaria");
+  },
+
+  // Formulario para agregar un paciente
   getAddPacienteForm: (req, res) => {
     res.render("vSecretaria/sPacientes", { title: "Agregar Paciente" });
   },
 
-  // Guardar un nuevo paciente
+  // Función para agregar un nuevo paciente
   addPaciente: async (req, res) => {
     try {
-        const { nombre, apellido, dni, fecha_nacimiento, telefono, email, obra_social } = req.body;
-        const paciente = { nombre, apellido, dni, fecha_nacimiento, telefono, email, obra_social };
-        await mPacientes.create(paciente);
-        res.render("vSecretaria/sPacientes", {newUser: true});
+      const { nombre, apellido, dni, fecha_nacimiento, telefono, email, obra_social } = req.body;
+      const dni_copia = req.file ? req.file.filename : null; // Verificación de archivo adjunto
+
+      const paciente = {
+        nombre,
+        apellido,
+        dni,
+        fecha_nacimiento,
+        telefono,
+        email,
+        obra_social,
+        dni_copia,
+      };
+
+      await mSecretaria.create(paciente); // Cambié mPacientes a mSecretaria
+      res.redirect("/secretaria/listar-paciente"); // Redirige a la lista de pacientes
     } catch (err) {
-        console.error("Error al crear paciente:", err);
-        res.status(err.status || 500).json({ message: err.message || "Error al crear el paciente" });
+      console.error("Error al crear paciente:", err);
+      res.status(500).render("vSecretaria/agregar-paciente", {
+        title: "Registrar Paciente",
+        error: "Hubo un problema al registrar el paciente. Inténtalo nuevamente.",
+      });
     }
   },
 
-  // Mostrar los profesionales para elegir turnos disponibles
-  getProfesionales: async (req, res) => {
+  // Obtener todas las agendas
+  getAllAgendas: async (req, res) => {
     try {
-      const profesionales = await mProfesionales.findAll(); // Asume que mProfesionales tiene un método findAll()
-      res.render("vSecretaria/turnos-disponibles", { title: "Ver Turnos", profesionales });
-    } catch (error) {
-      console.error("Error al obtener profesionales:", error);
-      res.status(500).send("Error al obtener profesionales");
+      const { id_medico, id_especialidad, fecha } = req.query;
+  
+      // Obtener agendas con filtros
+      const agendas = await mSecretaria.getAllAgendas({
+        id_medico,
+        id_especialidad,
+        fecha,
+      });
+  
+      // Obtener médicos y especialidades para los select
+      const medicos = await mSecretaria.getAllMedicos();
+      const especialidades = await mSecretaria.getAllEspecialidades();
+  
+      res.render("vSecretaria/consultar-agenda", {
+        title: "Consultar Agendas",
+        agendas,
+        medicos,
+        especialidades,
+        selectedMedico: id_medico || '',
+        selectedEspecialidad: id_especialidad || '',
+        selectedFecha: fecha || '',
+      });
+    } catch (err) {
+      console.error("Error al obtener agendas:", err);
+      res.status(500).render("vSecretaria/consultar-agenda", {
+        title: "Consultar Agendas",
+        error: "No se pudieron obtener las agendas. Inténtalo de nuevo.",
+      });
     }
   },
-
-  // Mostrar los turnos disponibles para un profesional específico
-//   getTurnos: async (req, res) => {
-//     const profesionalId = req.params.profesionalId;
-//     try {
-//       const turnos = await mTurnos.findAvailableByProfessional(profesionalId); // Asume que mTurnos tiene este método
-//       res.render("secretaria/listaTurnos", { title: "Turnos Disponibles", turnos });
-//     } catch (error) {
-//       console.error("Error al obtener turnos:", error);
-//       res.status(500).send("Error al obtener turnos");
-//     }
-//   },
-
-//   // Mostrar formulario para reservar un turno
-//   getReservaForm: (req, res) => {
-//     res.render("secretaria/reservaForm", { title: "Reservar Turno" });
-//   },
-
-//   // Reservar un turno
-//   reserveTurno: async (req, res) => {
-//     const { dni, profesionalId, horarioId } = req.body;
-//     try {
-//       // Verificar si el paciente existe por DNI
-//       const paciente = await mPacientes.findByDni(dni);
-//       if (!paciente) {
-//         return res.status(404).send("Paciente no encontrado");
-//       }
-
-//       // Lógica para reservar el turno
-//       await mTurnos.reserveTurno(horarioId, paciente.id, profesionalId);
-//       res.redirect("/reservar-turno");
-//     } catch (error) {
-//       console.error("Error al reservar turno:", error);
-//       res.status(500).send("Error al reservar turno");
-//     }
-//   },
+  // Listar todos los pacientes
+  listPacientes: async (req, res) => {
+    try {
+      const pacientes = await mSecretaria.getAllPacientes(); // Método adicional para obtener pacientes
+      res.render("vSecretaria/lista-pacientes", {
+        title: "Lista de Pacientes",
+        pacientes,
+      });
+    } catch (err) {
+      console.error("Error al listar pacientes:", err);
+      res.status(500).render("vSecretaria/lista-pacientes", {
+        title: "Lista de Pacientes",
+        error: "No se pudieron listar los pacientes.",
+      });
+    }
+  },
 };
 
 export default cSecretaria;

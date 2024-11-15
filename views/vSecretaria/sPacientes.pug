@@ -1,74 +1,42 @@
 extends ../layouts/layout
 
 block content
-    h1 Gestión de Médicos
-    form(action="/admin/medicos" method="POST")
-        div
-            label(for="nombre") Nombre:
-            input(type="text" name="nombre" required)
-        div
-            label(for="apellido") Apellido:
-            input(type="text" name="apellido" required)
-        div
-            label(for="dni") DNI:
-            input(type="text" name="dni" required)    
-        div
-            label(for="especialidad") Especialidad:
-            input(type="text" name="especialidad" required)
-        div
-            label(for="email") Email:
-            input(type="email" name="email")
-        div
-            label(for="telefono") Teléfono:
-            input(type="text" name="telefono")
-        div
-            label(for="matricula") Matrícula:
-            input(type="text" name="matricula")
+  h1= title
+  .form-container
+    form(action="/paciente/registrarse" method="POST" enctype="multipart/form-data")
+      // Mensaje de éxito si se agrega un nuevo paciente
+      if newPaciente
+        .alert.alert-success Paciente ha sido agregado exitosamente.
 
-        // Fecha desde/hasta
-        div
-            label(for="fechaInicio") Fecha de inicio:
-            input(type="date" name="fechaInicio" required)
-        div
-            label(for="fechaFin") Fecha de fin:
-            input(type="date" name="fechaFin" required)
+      // Formulario para agregar un nuevo paciente
+      div
+        label(for="nombre") Nombre:
+        input(type="text" name="nombre" placeholder="Ingrese su nombre" required)
+      div
+        label(for="apellido") Apellido:
+        input(type="text" name="apellido" placeholder="Ingrese su apellido" required)
+      div
+        label(for="dni") DNI:
+        input(type="text" name="dni" placeholder="Ingrese su DNI" required pattern="\\d{7,8}" title="Ingrese un DNI válido (solo números, 7-8 dígitos)")
+      div
+        label(for="fecha_nacimiento") Fecha de Nacimiento:
+        input(type="date" name="fecha_nacimiento" required)
+      div
+        label(for="telefono") Teléfono:
+        input(type="text" name="telefono" placeholder="Ingrese su teléfono" title="Ingrese un número de teléfono válido (10 dígitos)")
+      div
+        label(for="email") Email:
+        input(type="email" name="email" placeholder="Ingrese su email")
+      div
+        label(for="obra_social") Obra Social:
+        input(type="text" name="obra_social" placeholder="Ingrese su obra social")
+      div
+        label(for="dni_copia") Subir Fotocopia del DNI:
+        input(type="file" name="dni_copia" accept="image/*,application/pdf" required)
+        p.help-text Archivos permitidos: imágenes (JPG, PNG) o PDF.
+      
+      div
+        button(type="submit") Agregar Paciente
 
-        // Selección de días de la semana
-        div
-            label Días de trabajo:
-            div
-                input(type="checkbox" name="dias" value="lunes")
-                label(for="lunes") Lunes
-            div
-                input(type="checkbox" name="dias" value="martes")
-                label(for="martes") Martes
-            div
-                input(type="checkbox" name="dias" value="miercoles")
-                label(for="miercoles") Miércoles
-            div
-                input(type="checkbox" name="dias" value="jueves")
-                label(for="jueves") Jueves
-            div
-                input(type="checkbox" name="dias" value="viernes")
-                label(for="viernes") Viernes
-            div
-                input(type="checkbox" name="dias" value="sabado")
-                label(for="sabado") Sábado
-
-        // Selector de horarios
-        div
-            label Horario de trabajo:
-            div
-                label(for="horaInicio") Desde:
-                input(type="time" name="horaInicio" required)
-            div
-                label(for="horaFin") Hasta:
-                input(type="time" name="horaFin" required)
-
-        div
-            button(type="submit") Agregar Médico
-
-        if newMedico
-            br
-            br
-            p= "Médico agregado exitosamente"
+    // Link para volver a la página principal
+    a.button(href="/pacientesMain") ↩️ Volver

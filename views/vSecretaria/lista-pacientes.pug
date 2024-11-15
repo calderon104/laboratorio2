@@ -1,0 +1,24 @@
+extends ../layouts/layout
+
+block content
+  h1.text-center.mb-4 Lista de Pacientes
+  if !pacientes || pacientes.length === 0
+    .alert.alert-warning No hay pacientes registrados.
+  else
+    table.table.table-striped
+      thead
+        tr
+          th Nombre
+          th Apellido
+          th DNI
+          th Acciones
+      tbody
+        each paciente in pacientes
+          tr
+            td= paciente.nombre
+            td= paciente.apellido
+            td= paciente.dni
+            td
+              a.btn.btn-info.btn-sm(href=`/secretaria/paciente/${paciente.id}`) Ver Detalle
+  hr
+  a.btn.btn-secondary.mt-3(href="/secretaria") Volver al Inicio

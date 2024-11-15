@@ -1,0 +1,32 @@
+extends ../layouts/layout
+
+block content
+  h1 Mis Turnos
+  hr
+
+  if !turnos || turnos.length === 0
+    p No tienes turnos reservados.
+  else
+    table.table.table-striped
+      thead
+        tr
+          th Fecha
+          th Hora
+          th Médico
+          th Especialidad
+          th Motivo
+          th Estado
+      tbody
+        each turno in turnos
+          tr
+            // Asegúrate de que las funciones formatDate y formatTime están disponibles
+            td= formatDate(turno.fecha)
+            td= formatTime(turno.hora_inicio)
+            // Verifica si las propiedades del objeto turno están bien definidas
+            td= `${turno.Profesional.nombre} ${turno.Profesional.apellido}`
+            td= turno.Especialidad.nombre
+            td= turno.motivo
+            td= turno.estado
+
+  hr
+  a.btn.btn-primary(href="/pacientesMain") Volver al Inicio

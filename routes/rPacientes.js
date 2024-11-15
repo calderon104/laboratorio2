@@ -24,7 +24,7 @@ routes.post("/paciente/registrarse", upload.single("dni_copia"), cPacientes.crea
 routes.post("/paciente/:id/upload", upload.single("dni_copia"), cPacientes.uploadDni);
 // routes.get('/turnos-disponibles', cPacientes.verTurnosDisponibles);
 routes.post('/reservar-turno', cPacientes.reservarTurno);
-routes.get('/turnos/:idMedico', cPacientes.verTurnosPorMedico); // Nueva ruta para ver turnos por médico
-
+routes.get('/turnos/:idMedico', cPacientes.verTurnosPorMedico); 
+// routes.get('/mis-turnos', cPacientes.verMisTurnos);
 
 export default routes;

@@ -4,14 +4,9 @@ import cSecretaria from "../controllers/cSecretaria.js";
 const routes = Router();
 
 routes.get("/secretaria", cSecretaria.homeSecretaria);
-routes.get("/secretaria/pacientes", cSecretaria.getAddPacienteForm);
-// routes.get("/pacientes", secretariaController.getAddPacienteForm);
-// routes.post("/pacientes", secretariaController.addPaciente);
-
-// routes.get("/turnos-disponibles", secretariaController.getProfesionales);
-// routes.get("/turnos/:profesionalId", secretariaController.getTurnos);
-
-// routes.get("/reservar-turno", secretariaController.getReservaForm);
-// routes.post("/reservar-turno", secretariaController.reserveTurno);
+routes.get("/secretaria/agregar-paciente", cSecretaria.getAddPacienteForm);
+routes.post("/secretaria/pacientes", cSecretaria.addPaciente);
+routes.get("/secretaria/listar-paciente", cSecretaria.listPacientes);
+routes.get("/secretaria/consultar-agendas", cSecretaria.getAllAgendas);
 
 export default routes;

@@ -23,7 +23,7 @@ const cPacientes = {
         email,
         obra_social,
       } = req.body;
-      const dni_copia = req.file ? req.file.filename : null; // Obtener el nombre del archivo subido
+      const dni_copia = req.file ? req.file.filename : null;
 
       const paciente = {
         nombre,
@@ -33,18 +33,8 @@ const cPacientes = {
         telefono,
         email,
         obra_social,
-        dni_copia, // Guardar el nombre del archivo en la base de datos
+        dni_copia,
       };
-
-      // Verificar si el paciente ya existe por DNI antes de crearlo
-      // const existingPaciente = await mPacientes.getPacienteByDNI(dni);
-      // if (existingPaciente) {
-      //   return res.status(400).render("vPaciente/paciente", {
-      //     title: "Registrar Paciente",
-      //     error: "El paciente ya está registrado con este DNI.",
-      //   });
-      // }
-
       await mPacientes.create(paciente);
       res.redirect("/pacientesMain");
     } catch (err) {
@@ -61,7 +51,6 @@ const cPacientes = {
     try {
       const { dni } = req.body;
 
-      // Buscar el paciente por DNI
       const paciente = await mPacientes.getPacienteByDNI(dni);
       if (!paciente) {
         return res.status(404).render("vPaciente/pacienteMain", {
@@ -69,9 +58,9 @@ const cPacientes = {
           error: "Paciente no encontrado",
         });
       }
-      // Obtener la lista de médicos con sus especialidades
+
       const medicos = await mAdministrador.getAllProfesionales();
-      // Renderizar la vista con la información del paciente y los médicos
+
       res.render("vPaciente/pacienteDetalles", {
         title: "Detalles del Paciente",
         paciente,
@@ -106,18 +95,21 @@ const cPacientes = {
     const { id_turno, dni } = req.body;
     try {
       if (!id_turno || !dni) {
-        return res.status(400).send({ message: "Faltan datos para reservar el turno" });
+        return res
+          .status(400)
+          .send({ message: "Faltan datos para reservar el turno" });
       }
-  
+
       const paciente = await mPacientes.obtenerPacientePorDni(dni);
       if (!paciente) {
         return res.status(404).send({ message: "Paciente no encontrado" });
       }
-  
+
       await mPacientes.asignarTurnoAPaciente(id_turno, paciente.id);
-  
-      // Redirigir a la página de confirmación o a la lista de turnos del paciente
-      res.redirect(`/paciente/mis-turnos?dni=${dni}`);
+
+      res.render(`vPaciente/pacienteMain`, {
+        message: "Turno reservado exitosamente",
+      }); //mensaje de confimarcion
     } catch (err) {
       console.error("Error al reservar turno:", err);
       res.status(500).send({ message: "Error al reservar turno" });
@@ -127,33 +119,48 @@ const cPacientes = {
     const { idMedico } = req.params;
     const { fecha, dni } = req.query;
     const selectedDate = fecha ? new Date(fecha) : new Date();
-  
+
     try {
       const medico = await mAdministrador.getMedicoById(idMedico);
       if (!medico) {
         return res.status(404).send({ message: "Médico no encontrado" });
       }
-  
-      const turnos = await mPacientes.verTurnosDisponiblesPorFecha(idMedico, format(selectedDate, 'yyyy-MM-dd'));
-  
-      // Generar un array de fechas para el calendario (por ejemplo, para el mes actual)
+
+      const turnos = await mPacientes.verTurnosDisponiblesPorFecha(
+        idMedico,
+        format(selectedDate, "yyyy-MM-dd")
+      );
+
       const today = new Date();
-      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      
+      const firstDayOfMonth = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+      );
+      const lastDayOfMonth = new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        0
+      );
+
       const calendarDates = [];
-      for (let d = firstDayOfMonth; d <= lastDayOfMonth; d.setDate(d.getDate() + 1)) {
+      for (
+        let d = firstDayOfMonth;
+        d <= lastDayOfMonth;
+        d.setDate(d.getDate() + 1)
+      ) {
         calendarDates.push(new Date(d));
       }
-  
-      res.render('vPaciente/turnos-por-medico', { 
-        turnos, 
-        medico, 
+
+      res.render("vPaciente/turnos-por-medico", {
+        turnos,
+        medico,
         dni,
         selectedDate,
         calendarDates,
-        formatDate: (date) => format(date, 'yyyy-MM-dd'),
-        formatDateLocale: (date) => format(date, 'dd MMMM yyyy', { locale: es })
+        formatDate: (date) => format(date, "yyyy-MM-dd"),
+        formatDateLocale: (date) =>
+          format(date, "dd MMMM yyyy", { locale: es }),
       });
     } catch (err) {
       console.error("Error al obtener turnos para el médico:", err);

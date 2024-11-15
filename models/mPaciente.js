@@ -202,7 +202,34 @@ obtenerPacientePorDni: async (dni) => {
       throw { status: 500, message: "Error al obtener los días de atención del médico" };
     }
   },
-
+  getTurnosPorPaciente: async (dni) => {
+    try {
+      const [results] = await db.query(
+        `SELECT 
+           t.fecha, 
+           t.hora_inicio, 
+           t.hora_fin, 
+           t.motivo, 
+           t.estado,
+           p.nombre AS nombre_medico,
+           p.apellido AS apellido_medico,
+           e.nombre AS especialidad
+         FROM turno t
+         JOIN agenda a ON t.id_agenda = a.id
+         JOIN profesional p ON a.id_profesional = p.id
+         JOIN especialidad e ON a.id_especialidad = e.id
+         JOIN paciente pa ON t.id_paciente = pa.id
+         WHERE pa.dni = ?
+         ORDER BY t.fecha DESC`,
+        [dni]
+      );
+      return results;
+    } catch (err) {
+      console.error("Error al obtener los turnos del paciente:", err);
+      throw { status: 500, message: "Error al obtener turnos" };
+    }
+  }
+  
 };
 
 export default mPacientes;

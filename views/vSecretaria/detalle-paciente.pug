@@ -1,0 +1,51 @@
+extends ../layouts/layout
+
+block content
+  h1.text-center.mb-4 Detalle del Paciente
+  hr
+  p
+    strong Nombre: 
+    | #{paciente.nombre}
+  p
+    strong Apellido: 
+    | #{paciente.apellido}
+  p
+    strong DNI: 
+    | #{paciente.dni}
+  p
+    strong Teléfono: 
+    | #{paciente.telefono}
+  p
+    strong Email: 
+    | #{paciente.email}
+  p
+    strong Obra Social: 
+    | #{paciente.obra_social}
+  
+  h3.mt-5 Turnos Reservados
+  if !turnos || turnos.length === 0
+    .alert.alert-info No tiene turnos reservados.
+  else
+    table.table.table-bordered
+      thead
+        tr
+          th Fecha
+          th Hora
+          th Médico
+          th Especialidad
+          th Estado
+          th Acciones
+      tbody
+        each turno in turnos
+          tr
+            td= turno.fecha
+            td= turno.hora_inicio
+            td #{turno.nombre_medico} #{turno.apellido_medico}
+            td= turno.especialidad
+            td
+              span.badge.bg-success= turno.estado
+            td
+              a.btn.btn-warning.btn-sm(href=`/secretaria/turno/modificar/${turno.id}`) Modificar Estado
+              a.btn.btn-success.btn-sm(href=`/secretaria/agendar-turno/${paciente.id}`) Agendar Nuevo Turno
+  hr
+  a.btn.btn-secondary.mt-3(href="/secretaria/lista-pacientes") Volver a Lista de Pacientes
