@@ -92,14 +92,12 @@ const mAdministrador = {
     try {
       await connection.beginTransaction();
 
-      // Crear el profesional
       const [profesionalResult] = await connection.query(
         "INSERT INTO profesional SET ?",
         [profesionalData]
       );
       const profesionalId = profesionalResult.insertId;
 
-      // Asociar especialidad al profesional
       await connection.query(
         "INSERT INTO profesional_especialidad (id_profesional, id_especialidad, matricula) VALUES (?, ?, ?)",
         [
@@ -108,19 +106,17 @@ const mAdministrador = {
           especialidadData.matricula,
         ]
       );
-
-      // Asignar valores predeterminados si faltan
+//inicilizarlos, nose xq no los puse q eran validos null 
       const agendaDataWithDefaults = {
         id_profesional: profesionalId,
         id_especialidad: agendaData.id_especialidad,
-        id_sucursal: agendaData.id_sucursal || 1, // Sucursal predeterminada
-        fecha_inicio: agendaData.fecha_inicio || "2024-01-01", // Fecha inicial predeterminada
-        fecha_fin: agendaData.fecha_fin || "2024-12-31", // Fecha final predeterminada
-        clasificacion: agendaData.clasificacion || "General", // Clasificación predeterminada
-        max_sobreturnos: agendaData.max_sobreturnos || 0, // Sobreturnos predeterminados
+        id_sucursal: agendaData.id_sucursal || 1, 
+        fecha_inicio: agendaData.fecha_inicio || "2024-01-01", 
+        fecha_fin: agendaData.fecha_fin || "2024-12-31", 
+        clasificacion: agendaData.clasificacion || "General", 
+        max_sobreturnos: agendaData.max_sobreturnos || 0, 
       };
 
-      // Crear la agenda con valores predeterminados
       const [agendaResult] = await connection.query(
         "INSERT INTO agenda (id_profesional, id_especialidad, id_sucursal, fecha_inicio, fecha_fin, clasificacion, max_sobreturnos) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
@@ -287,20 +283,20 @@ const mAdministrador = {
         ]
       );
   
-      // Eliminar horarios anteriores
+
       await connection.query("DELETE FROM horario_laboral WHERE id_agenda = ?", [agendaId]);
   
-      // Insertar los nuevos horarios laborales
+
       if (horarios.length > 0) {
         const insertQuery = "INSERT INTO horario_laboral (id_agenda, dia_semana, hora_inicio, hora_fin, duracion_turno) VALUES ?";
         const values = horarios.map(h => [agendaId, h.dia_semana, h.hora_inicio, h.hora_fin, h.duracion_turno]);
         await connection.query(insertQuery, [values]);
       }
   
-      // *** Eliminar turnos anteriores ***
+
       await connection.query("DELETE FROM turno WHERE id_agenda = ?", [agendaId]);
   
-      // Generar nuevos turnos
+
       const fechaInicioObj = new Date(fechaInicio);
       const fechaFinObj = new Date(fechaFin);
       const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
@@ -318,20 +314,18 @@ const mAdministrador = {
           const [horaFinHora, minutoFin] = horario.hora_fin.split(':');
           horaFin.setHours(horaFinHora, minutoFin);
   
-          // Generar turnos según la duración establecida
+
           while (horaInicio < horaFin) {
             const horaFinTurno = new Date(horaInicio);
             horaFinTurno.setMinutes(horaFinTurno.getMinutes() + horario.duracion_turno);
   
             if (horaFinTurno > horaFin) break;
-  
-            // Insertar turno en la base de datos
+
             await connection.query(
               "INSERT INTO turno (id_agenda, fecha, hora_inicio, hora_fin, estado) VALUES (?, ?, ?, ?, 'disponible')",
               [agendaId, fecha.toISOString().split('T')[0], horaInicio.toTimeString().split(' ')[0], horaFinTurno.toTimeString().split(' ')[0]]
             );
-  
-            // Avanzar al siguiente turno
+
             horaInicio.setMinutes(horaInicio.getMinutes() + horario.duracion_turno);
           }
         }

@@ -6,16 +6,14 @@ const cSecretaria = {
     res.render("vSecretaria/secretaria");
   },
 
-  // Formulario para agregar un paciente
   getAddPacienteForm: (req, res) => {
     res.render("vSecretaria/sPacientes", { title: "Agregar Paciente" });
   },
 
-  // Función para agregar un nuevo paciente
   addPaciente: async (req, res) => {
     try {
       const { nombre, apellido, dni, fecha_nacimiento, telefono, email, obra_social } = req.body;
-      const dni_copia = req.file ? req.file.filename : null; // Verificación de archivo adjunto
+      const dni_copia = req.file ? req.file.filename : null;
 
       const paciente = {
         nombre,
@@ -28,8 +26,8 @@ const cSecretaria = {
         dni_copia,
       };
 
-      await mSecretaria.create(paciente); // Cambié mPacientes a mSecretaria
-      res.redirect("/secretaria/listar-paciente"); // Redirige a la lista de pacientes
+      await mSecretaria.create(paciente); 
+      res.redirect("/secretaria/listar-paciente"); 
     } catch (err) {
       console.error("Error al crear paciente:", err);
       res.status(500).render("vSecretaria/agregar-paciente", {
@@ -39,19 +37,17 @@ const cSecretaria = {
     }
   },
 
-  // Obtener todas las agendas
   getAllAgendas: async (req, res) => {
     try {
       const { id_medico, id_especialidad, fecha } = req.query;
   
-      // Obtener agendas con filtros
+
       const agendas = await mSecretaria.getAllAgendas({
         id_medico,
         id_especialidad,
         fecha,
       });
-  
-      // Obtener médicos y especialidades para los select
+
       const medicos = await mSecretaria.getAllMedicos();
       const especialidades = await mSecretaria.getAllEspecialidades();
   
@@ -72,10 +68,10 @@ const cSecretaria = {
       });
     }
   },
-  // Listar todos los pacientes
+
   listPacientes: async (req, res) => {
     try {
-      const pacientes = await mSecretaria.getAllPacientes(); // Método adicional para obtener pacientes
+      const pacientes = await mSecretaria.getAllPacientes(); 
       res.render("vSecretaria/lista-pacientes", {
         title: "Lista de Pacientes",
         pacientes,

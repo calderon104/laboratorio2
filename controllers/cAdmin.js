@@ -122,7 +122,7 @@ const cAdmin = {
 
   getMedicos: async (req, res) => {
     try {
-      const medicos = await mAdmin.getAllProfesionales(); // Obtiene todos los médicos
+      const medicos = await mAdmin.getAllProfesionales(); 
       console.log(medicos);
       res.render("vAdministrador/listMedicos", {
         title: "Lista de Médicos",
@@ -144,9 +144,9 @@ const cAdmin = {
   getEditMedicoForm: async (req, res) => {
     try {
       const medicoId = req.params.id;
-      const medico = await mAdmin.getMedicoById(medicoId); // Obtiene el médico y sus especialidades
+      const medico = await mAdmin.getMedicoById(medicoId); 
       const especialidadesDisponibles =
-        await mAdmin.getEspecialidadesDisponibles(medicoId); // Obtiene especialidades disponibles para agregar
+        await mAdmin.getEspecialidadesDisponibles(medicoId); 
       res.render("vAdministrador/modificarMed", {
         title: "Editar Médico",
         medico,
@@ -180,7 +180,7 @@ const cAdmin = {
   addSpecialty: async (req, res) => {
     try {
       const medicoId = req.params.id;
-      const { especialidad_id, matricula } = req.body; // Asegúrate de recibir la matrícula
+      const { especialidad_id, matricula } = req.body; 
       await mAdmin.addEspecialidad(medicoId, especialidad_id, matricula);
       res.redirect(`/admin/medicos/${medicoId}/edit`);
     } catch (err) {
@@ -217,10 +217,8 @@ const cAdmin = {
       const agenda = await mAdmin.getAgendaById(agendaId);
       const sucursales = await mAdmin.getSucursales();
   
-      // Asegúrate de que dias_laborables sea un array
       agenda.dias_laborables = agenda.dias_laborables || [];
   
-      // Asegúrate de que horarios sea un array
       agenda.horarios = agenda.horarios || [];
   
       res.render("vAdministrador/agenda", {
@@ -253,13 +251,11 @@ const cAdmin = {
         return res.status(400).send({ message: "Faltan datos obligatorios" });
       }
   
-      // Convertir duracion a número
       const duracionTurno = parseInt(duracion, 10);
       if (isNaN(duracionTurno) || duracionTurno <= 0) {
         return res.status(400).send({ message: "Duración del turno inválida" });
       }
   
-      // Preparar datos para la tabla 'agenda'
       const agendaData = {
         id_sucursal: sucursal,
         fecha_inicio: fechaInicio,
@@ -267,8 +263,7 @@ const cAdmin = {
         clasificacion: clasificacion,
         max_sobreturnos: parseInt(max_sobreturnos, 10) || 0,
       };
-  
-      // Preparar horarios
+
       const horarios = [];
       for (let i = 0; i < horaInicio.length; i++) {
         const diasSeleccionados = Array.isArray(dias[i]) ? dias[i] : [dias[i]];
@@ -283,11 +278,9 @@ const cAdmin = {
           }
         });
       }
-  
-      // Llamar al modelo para actualizar la agenda y generar turnos
+
       await mAdmin.updateAgenda(agendaId, agendaData, horarios, fechaInicio, fechaFin);
   
-      // Redirigir a la página de la agenda actualizada
       res.redirect(`/admin/agenda/${agendaId}`);
     } catch (err) {
       console.error("Error al actualizar la agenda:", err);

@@ -5,7 +5,6 @@ block content
 
   form(method="get" action="/secretaria/consultar-agendas")
     .filters
-      //- Filtro por Médico
       label(for="id_medico") Médico:
       select(name="id_medico")
         option(value="") Todos los médicos
@@ -15,7 +14,6 @@ block content
             selected=(medico.id == selectedMedico ? 'selected' : false)
           ) #{medico.nombre} #{medico.apellido}
 
-      //- Filtro por Especialidad
       label(for="id_especialidad") Especialidad:
       select(name="id_especialidad")
         option(value="") Todas las especialidades
@@ -25,13 +23,11 @@ block content
             selected=(especialidad.id == selectedEspecialidad ? 'selected' : false)
           ) #{especialidad.nombre}
       
-      //- Filtro por Fecha
       label(for="fecha") Fecha:
       input(type="date" name="fecha" value=selectedFecha)
     
     button(type="submit") Buscar
 
-  //- Tabla de resultados de agendas
   if agendas && agendas.length
     table
       thead
@@ -50,4 +46,3 @@ block content
             td= agenda.hora_inicio
             td= agenda.hora_fin
   else
-    p No se encontraron agendas.

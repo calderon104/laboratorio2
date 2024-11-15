@@ -1,9 +1,8 @@
 import db from "../config/db.js";
-import { format, parseISO,isDate } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { format, parseISO, isDate } from "date-fns";
+import { es } from "date-fns/locale";
 
 const mSecretaria = {
-  // Método para crear un paciente
   create: async (paciente) => {
     try {
       const [result] = await db.query("INSERT INTO paciente SET ?", [paciente]);
@@ -13,7 +12,6 @@ const mSecretaria = {
     }
   },
 
-  // Método para obtener todos los pacientes
   getAllPacientes: async () => {
     try {
       const [rows] = await db.query("SELECT * FROM paciente");
@@ -26,7 +24,7 @@ const mSecretaria = {
     const connection = await db.getConnection();
     try {
       const { id_medico, id_especialidad, fecha } = filters;
-      
+
       let query = `
         SELECT 
           agenda.id,
@@ -44,8 +42,7 @@ const mSecretaria = {
         WHERE 1 = 1
       `;
       const params = [];
-  
-      // Aplicar los filtros según los parámetros que se envíen
+
       if (id_medico) {
         query += " AND agenda.id_profesional = ?";
         params.push(id_medico);
@@ -56,22 +53,29 @@ const mSecretaria = {
       }
       if (fecha) {
         query += " AND DATE(agenda.fecha_inicio) = ?";
-        params.push(fecha); // 'fecha' debería estar en formato 'YYYY-MM-DD'
+        params.push(fecha);
       }
-  
+
       const [agendas] = await connection.query(query, params);
-  
-      // Formatear fechas y horas en español utilizando date-fns
       const agendasFormatted = agendas.map((agenda) => ({
         ...agenda,
-        // Asegurarse de que 'agenda.fecha' es un Date antes de formatear
         fecha: isDate(agenda.fecha)
           ? format(agenda.fecha, "eeee d 'de' MMMM 'de' yyyy", { locale: es })
-          : format(parse(agenda.fecha, 'yyyy-MM-dd', new Date()), "eeee d 'de' MMMM 'de' yyyy", { locale: es }),
-        hora_inicio: format(new Date(`1970-01-01T${agenda.hora_inicio}`), 'hh:mm a', { locale: es }), 
-        hora_fin: format(new Date(`1970-01-01T${agenda.hora_fin}`), 'hh:mm a', { locale: es })
+          : format(
+              parse(agenda.fecha, "yyyy-MM-dd", new Date()),
+              "eeee d 'de' MMMM 'de' yyyy",
+              { locale: es }
+            ),
+        hora_inicio: format(
+          new Date(`1970-01-01T${agenda.hora_inicio}`),
+          "hh:mm a",
+          { locale: es }
+        ),
+        hora_fin: format(new Date(`1970-01-01T${agenda.hora_fin}`), "hh:mm a", {
+          locale: es,
+        }),
       }));
-  
+
       return agendasFormatted;
     } catch (err) {
       console.error("Error al obtener las agendas:", err);
@@ -91,8 +95,6 @@ const mSecretaria = {
       throw { status: 500, message: "Error al obtener médicos" };
     }
   },
-
-  // Obtener lista de especialidades
   getAllEspecialidades: async () => {
     try {
       const [rows] = await db.query("SELECT id, nombre FROM especialidad");
